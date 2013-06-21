@@ -1,7 +1,3 @@
-#
-# Timepicker Component
-# Original version by Joris de Wit - bootstrap timepicker. 
-# 
 (($, window, document, undefined_) ->
   "use strict"
   
@@ -26,7 +22,7 @@
           "keydown.timepicker": $.proxy(self.widgetKeydown, self)
       @setDefaultTime()
 
-    decrementHour: ->
+    decHr: ->
       if @hour is 1
         @hour = 12
       else if @hour is 12
@@ -36,38 +32,27 @@
         @hour--
       @update()
 
-    decrementMinute: (step) ->
+    decMin: (step) ->
       newVal = undefined
       if step
         newVal = @minute - step
       else
         newVal = @minute - @minuteStep
       if newVal < 0
-        @decrementHour()
+        @decHr()
         @minute = newVal + 60
       else
         @minute = newVal
       @update()
 
-    decrementSecond: ->
+    decSec: ->
       newVal = @second - @secondStep
       if newVal < 0
-        @decrementMinute true
+        @decMin true
         @second = newVal + 60
       else
         @second = newVal
       @update()
-
-    getCursorPosition: ->
-      input = @$element.get(0)
-      if "selectionStart" of input # Standard-compliant browsers
-        input.selectionStart
-      else if document.selection # IE fix
-        input.focus()
-        sel = document.selection.createRange()
-        selLen = document.selection.createRange().text.length
-        sel.moveStart "character", -input.value.length
-        sel.text.length - selLen
 
     # Append zeroes to single digit numbers. return [hour, minute, second]
     normalizeTime: ->
@@ -79,7 +64,7 @@
       time = @normalizeTime()
       return time[0] + ":" + time[1] + ((if @showSeconds then ":" + time[2] else "")) + " " + @meridian
 
-    incrementHour: ->
+    incHr: ->
       if @hour is 11
         @hour++
         return @toggleMeridian()
@@ -87,23 +72,23 @@
       @hour++
       @update()
 
-    incrementMinute: (step) ->
+    incMin: (step) ->
       newVal = undefined
       if step
         newVal = @minute + step
       else
         newVal = @minute + @minuteStep - (@minute % @minuteStep)
       if newVal > 59
-        @incrementHour()
+        @incHr()
         @minute = newVal - 60
       else
         @minute = newVal
       @update()
 
-    incrementSecond: ->
+    incSec: ->
       newVal = @second + @secondStep - (@second % @secondStep)
       if newVal > 59
-        @incrementMinute true
+        @incMin true
         @second = newVal - 60
       else
         @second = newVal
@@ -111,21 +96,17 @@
 
     setDefaultTime: () ->
       dTime = new Date()
-      hours = dTime.getHours()
-      minutes = Math.floor(dTime.getMinutes() / @minuteStep) * @minuteStep
-      seconds = Math.floor(dTime.getSeconds() / @secondStep) * @secondStep
-      meridian = "AM"
-      if hours is 0
-        hours = 12
-      else if hours >= 12
-        hours = hours - 12  if hours > 12
-        meridian = "PM"
+      @hour = dTime.getHours()
+      @minute = Math.floor(dTime.getMinutes() / @minuteStep) * @minuteStep
+      @second = Math.floor(dTime.getSeconds() / @secondStep) * @secondStep
+      @meridian = "AM"
+      if @hour is 0
+        @hour = 12
+      else if @hour >= 12
+        @hour = @hour - 12  if @hour > 12
+        @meridian = "PM"
       else
-        meridian = "AM"
-      @hour = hours
-      @minute = minutes
-      @second = seconds
-      @meridian = meridian
+        @meridian = "AM"
       @update()
 
     toggleMeridian: ->
@@ -141,27 +122,22 @@
           minutes: @minute
           seconds: @second
           meridian: @meridian
-
-      @updateElement()
       @updateWidget()
-
-    updateElement: ->
-      @$element.val(@getTime()).change()
 
     updateWidget: ->
       return  if @$widget is false
       time = @normalizeTime()
-      @$widget.find("input.timepicker-hour").val time[0]
-      @$widget.find("input.timepicker-minute").val time[1]
-      @$widget.find("input.timepicker-second").val time[2]  if @showSeconds
-      @$widget.find("input.timepicker-meridian").val @meridian
+      @$widget.find("input.tp-hr").val time[0]
+      @$widget.find("input.tp-min").val time[1]
+      @$widget.find("input.tp-sec").val time[2]  if @showSeconds
+      @$widget.find("input.tp-meridian").val @meridian
 
     updateFromWidgetInputs: ->
       return  if @$widget is false
-      @hour = $("input.timepicker-hour", @$widget).val()
-      @minute = $("input.timepicker-minute", @$widget).val()
-      @second = $("input.timepicker-second", @$widget).val()
-      @meridian = $("input.timepicker-meridian", @$widget).val()
+      @hour = $("input.tp-hr", @$widget).val()
+      @minute = $("input.tp-min", @$widget).val()
+      @second = $("input.tp-sec", @$widget).val()
+      @meridian = $("input.tp-meridian", @$widget).val()
       @hour = 0  if isNaN(@hour)
       @minute = 0  if isNaN(@minute)
       if @hour > 12
@@ -198,25 +174,24 @@
           e.preventDefault()
           switch name
             when "hour"
-              @incrementHour()
+              @incHr()
             when "minute"
-              @incrementMinute()
+              @incMin()
             when "second"
-              @incrementSecond()
+              @incSec()
             when "meridian"
               @toggleMeridian()
         when 40 # down arrow
           e.preventDefault()
           switch name
             when "hour"
-              @decrementHour()
+              @decHr()
             when "minute"
-              @decrementMinute()
+              @decMin()
             when "second"
-              @decrementSecond()
+              @decSec()
             when "meridian"
               @toggleMeridian()
-
   
   #TIMEPICKER PLUGIN DEFINITION
   $.fn.timepicker = (option) ->
@@ -228,7 +203,6 @@
       options = typeof option is "object" and option
       $this.data "timepicker", (data = new Timepicker(this, $.extend({}, $.fn.timepicker.defaults, options, $(this).data())))  unless data
       data[option].apply data, args  if typeof option is "string"
-
 
   $.fn.timepicker.defaults =
     minuteStep: 15

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="./css/timepicker.css" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/timepicker.js"></script>
+</head>
+<body>
+
+    <h1> TimePicker </h1>
+    
+    <div class="timepicker" id="timepicker1">
+        <table class="template">
+          <tr>
+            <td><a href="#" data-action="incHr" class="arrow up"></a></td>
+            <td class="separator">&nbsp;</td>
+            <td><a href="#" data-action="incMin" class="arrow up"></a></td>
+            <td class="separator">&nbsp;</td>  
+            <td><a href="#" data-action="toggleMeridian" class="arrow up"></a></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="hour" class="tp-hr" maxlength="2"/></td> 
+            <td class="separator">:</td>
+            <td><input type='text' name='minute' class='tp-min' maxlength='2'/></td>
+            <td class="separator">&nbsp;</td> 
+            <td><input type='text' name='meridian' class='tp-meridian' maxlength='2'/></td>
+          </tr>
+          <tr>
+            <td><a href="#" data-action="decHr" class="arrow down"></a></td>
+            <td class="separator"></td>
+            <td><a href="#" data-action="decMin" class="arrow down"></a></td>
+            <td class="separator">&nbsp;</td>
+            <td><a href="#" data-action="toggleMeridian" class="arrow down"></a></td>
+          </tr>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        $('#timepicker1').timepicker();
+    </script>
+
+</body>
+</html>
+

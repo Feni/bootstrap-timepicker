@@ -29,7 +29,7 @@
         });
         return this.setDefaultTime();
       },
-      decrementHour: function() {
+      decHr: function() {
         if (this.hour === 1) {
           this.hour = 12;
         } else if (this.hour === 12) {
@@ -40,7 +40,7 @@
         }
         return this.update();
       },
-      decrementMinute: function(step) {
+      decMin: function(step) {
         var newVal;
         newVal = void 0;
         if (step) {
@@ -49,36 +49,23 @@
           newVal = this.minute - this.minuteStep;
         }
         if (newVal < 0) {
-          this.decrementHour();
+          this.decHr();
           this.minute = newVal + 60;
         } else {
           this.minute = newVal;
         }
         return this.update();
       },
-      decrementSecond: function() {
+      decSec: function() {
         var newVal;
         newVal = this.second - this.secondStep;
         if (newVal < 0) {
-          this.decrementMinute(true);
+          this.decMin(true);
           this.second = newVal + 60;
         } else {
           this.second = newVal;
         }
         return this.update();
-      },
-      getCursorPosition: function() {
-        var input, sel, selLen;
-        input = this.$element.get(0);
-        if ("selectionStart" in input) {
-          return input.selectionStart;
-        } else if (document.selection) {
-          input.focus();
-          sel = document.selection.createRange();
-          selLen = document.selection.createRange().text.length;
-          sel.moveStart("character", -input.value.length);
-          return sel.text.length - selLen;
-        }
       },
       normalizeTime: function() {
         return [(this.hour < 10 ? "0" + this.hour : this.hour), (this.minute < 10 ? "0" + this.minute : this.minute), (this.second < 10 ? "0" + this.second : this.second)];
@@ -88,7 +75,7 @@
         time = this.normalizeTime();
         return time[0] + ":" + time[1] + (this.showSeconds ? ":" + time[2] : "") + " " + this.meridian;
       },
-      incrementHour: function() {
+      incHr: function() {
         if (this.hour === 11) {
           this.hour++;
           return this.toggleMeridian();
@@ -100,7 +87,7 @@
         this.hour++;
         return this.update();
       },
-      incrementMinute: function(step) {
+      incMin: function(step) {
         var newVal;
         newVal = void 0;
         if (step) {
@@ -109,18 +96,18 @@
           newVal = this.minute + this.minuteStep - (this.minute % this.minuteStep);
         }
         if (newVal > 59) {
-          this.incrementHour();
+          this.incHr();
           this.minute = newVal - 60;
         } else {
           this.minute = newVal;
         }
         return this.update();
       },
-      incrementSecond: function() {
+      incSec: function() {
         var newVal;
         newVal = this.second + this.secondStep - (this.second % this.secondStep);
         if (newVal > 59) {
-          this.incrementMinute(true);
+          this.incMin(true);
           this.second = newVal - 60;
         } else {
           this.second = newVal;
@@ -128,26 +115,22 @@
         return this.update();
       },
       setDefaultTime: function() {
-        var dTime, hours, meridian, minutes, seconds;
+        var dTime;
         dTime = new Date();
-        hours = dTime.getHours();
-        minutes = Math.floor(dTime.getMinutes() / this.minuteStep) * this.minuteStep;
-        seconds = Math.floor(dTime.getSeconds() / this.secondStep) * this.secondStep;
-        meridian = "AM";
-        if (hours === 0) {
-          hours = 12;
-        } else if (hours >= 12) {
-          if (hours > 12) {
-            hours = hours - 12;
+        this.hour = dTime.getHours();
+        this.minute = Math.floor(dTime.getMinutes() / this.minuteStep) * this.minuteStep;
+        this.second = Math.floor(dTime.getSeconds() / this.secondStep) * this.secondStep;
+        this.meridian = "AM";
+        if (this.hour === 0) {
+          this.hour = 12;
+        } else if (this.hour >= 12) {
+          if (this.hour > 12) {
+            this.hour = this.hour - 12;
           }
-          meridian = "PM";
+          this.meridian = "PM";
         } else {
-          meridian = "AM";
+          this.meridian = "AM";
         }
-        this.hour = hours;
-        this.minute = minutes;
-        this.second = seconds;
-        this.meridian = meridian;
         return this.update();
       },
       toggleMeridian: function() {
@@ -165,11 +148,7 @@
             meridian: this.meridian
           }
         });
-        this.updateElement();
         return this.updateWidget();
-      },
-      updateElement: function() {
-        return this.$element.val(this.getTime()).change();
       },
       updateWidget: function() {
         var time;
@@ -177,21 +156,21 @@
           return;
         }
         time = this.normalizeTime();
-        this.$widget.find("input.timepicker-hour").val(time[0]);
-        this.$widget.find("input.timepicker-minute").val(time[1]);
+        this.$widget.find("input.tp-hr").val(time[0]);
+        this.$widget.find("input.tp-min").val(time[1]);
         if (this.showSeconds) {
-          this.$widget.find("input.timepicker-second").val(time[2]);
+          this.$widget.find("input.tp-sec").val(time[2]);
         }
-        return this.$widget.find("input.timepicker-meridian").val(this.meridian);
+        return this.$widget.find("input.tp-meridian").val(this.meridian);
       },
       updateFromWidgetInputs: function() {
         if (this.$widget === false) {
           return;
         }
-        this.hour = $("input.timepicker-hour", this.$widget).val();
-        this.minute = $("input.timepicker-minute", this.$widget).val();
-        this.second = $("input.timepicker-second", this.$widget).val();
-        this.meridian = $("input.timepicker-meridian", this.$widget).val();
+        this.hour = $("input.tp-hr", this.$widget).val();
+        this.minute = $("input.tp-min", this.$widget).val();
+        this.second = $("input.tp-sec", this.$widget).val();
+        this.meridian = $("input.tp-meridian", this.$widget).val();
         if (isNaN(this.hour)) {
           this.hour = 0;
         }
@@ -255,11 +234,11 @@
             e.preventDefault();
             switch (name) {
               case "hour":
-                return this.incrementHour();
+                return this.incHr();
               case "minute":
-                return this.incrementMinute();
+                return this.incMin();
               case "second":
-                return this.incrementSecond();
+                return this.incSec();
               case "meridian":
                 return this.toggleMeridian();
             }
@@ -268,11 +247,11 @@
             e.preventDefault();
             switch (name) {
               case "hour":
-                return this.decrementHour();
+                return this.decHr();
               case "minute":
-                return this.decrementMinute();
+                return this.decMin();
               case "second":
-                return this.decrementSecond();
+                return this.decSec();
               case "meridian":
                 return this.toggleMeridian();
             }
